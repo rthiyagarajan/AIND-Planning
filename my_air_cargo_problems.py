@@ -59,6 +59,18 @@ class AirCargoProblem(Problem):
             '''
             loads = []
             # TODO create all load ground actions from the domain Load action
+            for a in self.airports:
+                for p in self.planes:
+                    for c in self.cargos:
+                        precond_pos = [expr("At({}, {})".format(c, a)),
+                                      expr("At({}, {})".format(p, a))]
+                        precond_neg = []
+                        effect_add = [expr("At({}, {})".format(c, p))]
+                        effect_rem = [expr("At({}, {})".format(c, a))]
+                        load = Action(expr("Load({}, {}, {})".format(c, p, a)),
+                                     [precond_pos, precond_neg],
+                                     [effect_add, effect_rem])
+                        loads.append(load)                        
             return loads
 
         def unload_actions():
@@ -68,6 +80,18 @@ class AirCargoProblem(Problem):
             '''
             unloads = []
             # TODO create all Unload ground actions from the domain Unload action
+            for a in self.airports:
+                for p in self.planes:
+                    for c in self.cargos:
+                        precond_pos = [expr("At({}, {})".format(c, p)),
+                                      expr("At({}, {})".format(p, a))]
+                        precond_neg = []
+                        effect_add = [expr("At({}, {})".format(c, a))]
+                        effect_rem = [expr("At({}, {})".format(c, p))]
+                        unload = Action(expr("Load({}, {}, {})".format(c, p, a)),
+                                     [precond_pos, precond_neg],
+                                     [effect_add, effect_rem])
+                        unloads.append(unload)              
             return unloads
 
         def fly_actions():
@@ -103,6 +127,19 @@ class AirCargoProblem(Problem):
         """
         # TODO implement
         possible_actions = []
+        #copied from Cake example
+        kb = PropKB()
+        kb.tell(decode_state(state, self.state_map).pos_sentence())
+        for action in self.actions_list:
+            is_possible = True
+            for clause in action.precond_pos:
+                if clause not in kb.clauses: #doesn't meet all pos preconditions
+                    is_possible = False
+            for clause in action.precond_neg:
+                if clause in kb.clauses: #matches any neg preconditions
+                    is_possible = False
+            if is_possible:
+                possible_actions.append(action)
         return possible_actions
 
     def result(self, state: str, action: Action):
