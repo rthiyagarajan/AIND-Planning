@@ -206,7 +206,16 @@ class AirCargoProblem(Problem):
         executed.
         '''
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
-        count = 0
+        count = 0        
+        # All 3 actions only have 1 positive effect
+        # Without preconditions the Unload action will achieve a goal from any state 
+        # The negative effect of Unload does not impact achieved goals
+        # So minimum actions to achieve goal is the no of unreached goal conditions
+        kb = PropKB()
+        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+        for clause in self.goal:
+            if clause not in kb.clauses:
+                count += 1       
         return count
 
 
