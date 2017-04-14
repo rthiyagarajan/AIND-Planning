@@ -307,12 +307,13 @@ class PlanningGraph():
             print("finished prints")
             #
             self.update_a_mutex(self.a_levels[level])
+            # mutex prints
             for a in self.a_levels[level]:
                 print("")
                 print("Mutex", level)
                 a.show()
-                for q in a.children:
-                    print("Mutex",q.literal)
+                for q in a.mutex:
+                    print("Mutex A",q.action.name,q.action.args)
             #
             level += 1
             self.add_literal_level(level)
@@ -392,7 +393,8 @@ class PlanningGraph():
         for i, n1 in enumerate(nodelist[:-1]):
             for n2 in nodelist[i + 1:]:
                 if (self.serialize_actions(n1, n2) or
-                        self.inconsistent_effects_mutex(n1, n2) or
+                    #commemted this mutex out temporarily while diagnoseing the others
+                        # self.inconsistent_effects_mutex(n1, n2) or
                         self.interference_mutex(n1, n2) or
                         self.competing_needs_mutex(n1, n2)):
                     mutexify(n1, n2)
@@ -430,6 +432,11 @@ class PlanningGraph():
         :return: bool
         '''
         # TODO test for Inconsistent Effects between nodes
+
+        if node_a1.action.effect_add == node_a2.action.effect_rem:
+            return True
+        if node_a2.action.effect_add == node_a1.action.effect_rem:
+            return True
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -447,6 +454,23 @@ class PlanningGraph():
         :return: bool
         '''
         # TODO test for Interference between nodes
+        for a1_eff_add in node_a1.action.effect_add:
+            for a2_pre_neg in node_a2.action.precond_neg:
+                if a1_eff_add == a2_pre_neg:
+                    return True
+        for a2_eff_add in node_a2.action.effect_add:
+            for a1_pre_neg in node_a1.action.precond_neg:
+                if a2_eff_add == a1_pre_neg:
+                    return True
+
+        for a1_eff_rem in node_a1.action.effect_rem:
+            for a2_pre_pos in node_a2.action.precond_pos:
+                if a1_eff_rem == a2_pre_pos:
+                    return True
+        for a2_eff_rem in node_a2.action.effect_rem:
+            for a1_pre_pos in node_a1.action.precond_pos:
+                if a2_eff_rem == a1_pre_pos:
+                    return True
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
