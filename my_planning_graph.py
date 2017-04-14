@@ -287,34 +287,34 @@ class PlanningGraph():
         while not leveled:
 
             self.add_action_level(level)
-            #print statements to debug
-            for s in self.s_levels[level]:
-                print("")
-                print("S_nodes",level)
-                s.show()
-                for w in s.parents:
-                    print("Parents",w.action.name, w.action.args)
-                for w in s.children:
-                    print("Children",w.action.name, w.action.args)
-            for a in self.a_levels[level]:
-                print("")
-                print("A_nodes: ",level)
-                a.show()
-                for q in a.parents:
-                    print("Parents",q.literal) 
-                for q in a.children:
-                    print("Children",q.literal)
-            print("finished prints")
-            #
+#            #print statements to debug
+#            for s in self.s_levels[level]:
+#                print("")
+#                print("S_nodes",level)
+#                s.show()
+#                for w in s.parents:
+#                    print("Parents",w.action.name, w.action.args)
+#                for w in s.children:
+#                    print("Children",w.action.name, w.action.args)
+#            for a in self.a_levels[level]:
+#                print("")
+#                print("A_nodes: ",level)
+#                a.show()
+#                for q in a.parents:
+#                    print("Parents",q.literal) 
+#                for q in a.children:
+#                    print("Children",q.literal)
+#            print("finished prints")
+#            #
             self.update_a_mutex(self.a_levels[level])
-            # mutex prints
-            for a in self.a_levels[level]:
-                print("")
-                print("Mutex", level)
-                a.show()
-                for q in a.mutex:
-                    print("Mutex A",q.action.name,q.action.args)
-            #
+#            # mutex prints
+#            for a in self.a_levels[level]:
+#                print("")
+#                print("Mutex", level)
+#                a.show()
+#                for q in a.mutex:
+#                    print("Mutex A",q.action.name,q.action.args)
+#            #
             level += 1
             self.add_literal_level(level)
             self.update_s_mutex(self.s_levels[level])
@@ -578,4 +578,17 @@ class PlanningGraph():
         level_sum = 0
         # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
+        # define a function to find first level occurence of a positive goal literal
+        def check(clause):    
+            for level in range(len(self.s_levels)):
+                for c in self.s_levels[level]:
+                    if c.is_pos:
+                        if clause == c.symbol:
+                            return level
+            return False
+        
+        for clause in self.problem.goal:
+            level_sum += check(clause)
+            # print("level_sum {} for clause {}".format(level_sum,clause))
+
         return level_sum
