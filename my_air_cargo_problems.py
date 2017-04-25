@@ -46,7 +46,7 @@ class AirCargoProblem(Problem):
             list of Action objects
         '''
 
-        # TODO create concrete Action objects based on the domain action schema for: Load, Unload, and Fly
+        # COMPLETED create concrete Action objects based on the domain action schema for: Load, Unload, and Fly
         # concrete actions definition: specific literal action that does not include variables as with the schema
         # for example, the action schema 'Load(c, p, a)' can represent the concrete actions 'Load(C1, P1, SFO)'
         # or 'Load(C2, P2, JFK)'.  The actions for the planning problem must be concrete because the problems in
@@ -58,7 +58,6 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             '''
             loads = []
-            # TODO create all load ground actions from the domain Load action
             for a in self.airports:
                 for p in self.planes:
                     for c in self.cargos:
@@ -79,7 +78,6 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             '''
             unloads = []
-            # TODO create all Unload ground actions from the domain Unload action
             for a in self.airports:
                 for p in self.planes:
                     for c in self.cargos:
@@ -125,18 +123,19 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
         possible_actions = []
-        #copied from Cake example
+        # Copied from Cake example
         kb = PropKB()
         kb.tell(decode_state(state, self.state_map).pos_sentence())
         for action in self.actions_list:
             is_possible = True
             for clause in action.precond_pos:
-                if clause not in kb.clauses: #doesn't meet all pos preconditions
+                # Doesn't meet all pos preconditions
+                if clause not in kb.clauses:
                     is_possible = False
             for clause in action.precond_neg:
-                if clause in kb.clauses: #matches any neg preconditions
+                # Matches any neg preconditions
+                if clause in kb.clauses:
                     is_possible = False
             if is_possible:
                 possible_actions.append(action)
@@ -151,7 +150,7 @@ class AirCargoProblem(Problem):
         :param action: Action applied
         :return: resulting state after action
         """
-        # TODO implement
+        # Copied from Cake example
         new_state = FluentState([], [])
         old_state = decode_state(state, self.state_map)
         for fluent in old_state.pos:
@@ -205,12 +204,12 @@ class AirCargoProblem(Problem):
         conditions by ignoring the preconditions required for an action to be
         executed.
         '''
-        # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
-        count = 0
+        # COMPLETED (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         # Each action only has 1 positive effect so will not achieve multiple goals
         # Without preconditions the Unload action will achieve a goal from any state
         # The negative effect of Unload does not impact achieved goals
         # So minimum actions to achieve goal is the no. of unreached goal conditions
+        count = 0
         kb = PropKB()
         kb.tell(decode_state(node.state, self.state_map).pos_sentence())
         for clause in self.goal:
@@ -245,7 +244,6 @@ def air_cargo_p1() -> AirCargoProblem:
 
 
 def air_cargo_p2() -> AirCargoProblem:
-    # TODO implement Problem 2 definition
     cargos = ['C1', 'C2', 'C3']
     planes = ['P1', 'P2', 'P3']
     airports = ['JFK', 'SFO', 'ATL']
@@ -287,7 +285,6 @@ def air_cargo_p2() -> AirCargoProblem:
 
 
 def air_cargo_p3() -> AirCargoProblem:
-    # TODO implement Problem 3 definition
     cargos = ['C1', 'C2', 'C3', 'C4']
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO', 'ATL', 'ORD']
